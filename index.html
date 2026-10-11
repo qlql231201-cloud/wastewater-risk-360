@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>하폐수처리장 360° 위험성평가</title>
+  <style>
+    :root {
+      --navy: #0f1d31;
+      --navy-2: #18304f;
+      --yellow: #ffc21a;
+      --bg: #eef1f5;
+      --card: #fff;
+      --line: #dce3eb;
+      --text: #172033;
+      --muted: #657184;
+      --green: #138a58;
+      --amber: #e09a00;
+      --orange: #ed6d1f;
+      --red: #d9363e;
+      --shadow: 0 9px 28px rgba(16, 35, 58, .09);
+    }
+    * { box-sizing: border-box; }
+    html { color-scheme: light; }
+    body {
+      margin: 0;
+      min-width: 1080px;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Pretendard, "맑은 고딕", "Malgun Gothic", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(255, 194, 26, .5);
+      outline-offset: 2px;
+    }
+    .app-header {
+      background: linear-gradient(125deg, var(--navy), var(--navy-2));
+      color: #fff;
+      padding: 22px 30px;
+      box-shadow: 0 4px 20px rgba(15, 29, 49, .18);
+    }
+    .header-inner { max-width: 1720px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--yellow); color: var(--navy); font-size: 25px; box-shadow: inset 0 -2px 0 rgba(0,0,0,.08); }
+    .brand h1 { margin: 0; font-size: 24px; letter-spacing: -.5px; }
+    .brand p { margin: 5px 0 0; font-size: 13px; color: #cbd6e4; }
+    .badges { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+    .badge { border: 1px solid rgba(255,255,255,.18); border-radius: 999px; background: rgba(255,255,255,.09); padding: 8px 12px; font-size: 12px; color: #e9f0f8; white-space: nowrap; }
+    .badge.practice { background: var(--yellow); color: #3a2a00; border-color: var(--yellow); font-weight: 800; }
+    main { max-width: 1720px; margin: 0 auto; padding: 20px 24px 42px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .stat-card { background: var(--card); border: 1px solid rgba(213,221,231,.78); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; min-height: 92px; }
+    .stat-label { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .stat-value { margin-top: 4px; font-size: 27px; font-weight: 900; }
+    .stat-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: #f1f4f8; font-size: 19px; }
+    .main-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+    .side-stack { display: grid; gap: 16px; }
+    .card { background: var(--card); border: 1px solid rgba(213,221,231,.8); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+    .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 18px 20px 14px; border-bottom: 1px solid #edf0f4; }
+    .eyebrow { margin-bottom: 4px; color: #53667e; font-size: 10px; font-weight: 900; letter-spacing: 1.35px; }
+    .card-head h2 { margin: 0; font-size: 19px; }
+    .card-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .action-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+    .btn { min-height: 36px; border: 1px solid #ccd5df; border-radius: 10px; background: #fff; color: #26364a; padding: 8px 11px; font-size: 12px; font-weight: 800; transition: .18s ease; }
+    .btn:hover { border-color: #9eabb9; background: #f7f9fb; transform: translateY(-1px); }
+    .btn.primary { border-color: var(--yellow); background: var(--yellow); color: #372900; }
+    .btn.danger { border-color: #efc3c6; color: #ae2730; background: #fffafa; }
+    .btn.active { border-color: #243e5f; background: #243e5f; color: #fff; box-shadow: 0 0 0 3px rgba(255,194,26,.35); }
+    .viewer-wrap { position: relative; background: #0b1320; }
+    #viewer { position: relative; height: clamp(430px, 55vh, 680px); overflow: hidden; touch-action: none; user-select: none; cursor: grab; background: radial-gradient(circle at center, #24344a, #0d1725 72%); }
+    #viewer.dragging { cursor: grabbing; }
+    #viewer.add-mode { cursor: crosshair; }
+    #panoStage { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+    .pano-img { position: absolute; top: 0; height: 100%; width: auto; max-width: none; pointer-events: none; -webkit-user-drag: none; }
+    .pano-img.muted-copy { filter: none; }
+    .pin-layer { position: absolute; inset: 0; pointer-events: none; }
+    .pin { position: absolute; transform: translate(-50%, -100%); pointer-events: auto; border: 0; background: transparent; padding: 0 0 10px; z-index: 4; touch-action: none; }
+    .pin-dot { position: relative; width: 34px; height: 34px; display: grid; place-items: center; border: 4px solid var(--risk-color, var(--green)); border-radius: 50% 50% 50% 8px; transform: rotate(-45deg); background: var(--yellow); color: #182233; font-size: 12px; font-weight: 900; box-shadow: 0 4px 12px rgba(0,0,0,.32); }
+    .pin-dot > span { transform: rotate(45deg); }
+    .pin.selected .pin-dot { box-shadow: 0 0 0 5px rgba(255,255,255,.92), 0 5px 16px rgba(0,0,0,.35); }
+    .pin-tip { position: absolute; left: 42px; top: -10px; width: max-content; max-width: 270px; display: none; padding: 8px 10px; border-radius: 9px; background: rgba(11,23,38,.94); color: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.3); text-align: left; font-size: 11px; line-height: 1.4; pointer-events: none; }
+    .pin:hover .pin-tip, .pin.selected .pin-tip { display: block; }
+    .viewer-tools { position: absolute; z-index: 8; top: 14px; right: 14px; display: flex; gap: 6px; }
+    .viewer-tools button { min-width: 38px; height: 36px; padding: 0 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 9px; background: rgba(15,29,49,.8); color: #fff; font-weight: 900; backdrop-filter: blur(6px); }
+    .viewer-tools button:hover { background: rgba(24,48,79,.96); }
+    .viewer-hint { position: absolute; z-index: 7; left: 50%; top: 50%; transform: translate(-50%,-50%); padding: 12px 17px; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; background: rgba(15,29,49,.82); color: #fff; font-size: 13px; box-shadow: 0 6px 24px rgba(0,0,0,.25); pointer-events: none; transition: opacity .3s; }
+    .viewer-hint.hidden { opacity: 0; }
+    .mode-banner { position: absolute; z-index: 7; top: 14px; left: 14px; border-radius: 9px; background: rgba(255,194,26,.94); color: #332600; padding: 8px 11px; font-size: 11px; font-weight: 900; display: none; }
+    .mode-banner.show { display: block; }
+    .minimap-box { position: absolute; z-index: 8; left: 14px; bottom: 14px; width: min(330px, 38%); border: 1px solid rgba(255,255,255,.35); border-radius: 11px; overflow: hidden; background: rgba(15,29,49,.78); box-shadow: 0 5px 20px rgba(0,0,0,.26); }
+    .minimap-title { padding: 7px 9px; color: #fff; font-size: 10px; font-weight: 800; }
+    #minimap { position: relative; aspect-ratio: 8 / 3; overflow: hidden; cursor: crosshair; background: #1a283a; touch-action: none; }
+    #minimap img { position: absolute; width: 100%; height: 100%; object-fit: fill; pointer-events: none; opacity: .82; }
+    #miniViewport { position: absolute; top: 0; height: 100%; border: 2px solid var(--yellow); background: rgba(255,194,26,.08); box-shadow: 0 0 0 999px rgba(4,10,17,.16); pointer-events: none; }
+    #miniPins { position: absolute; inset: 0; }
+    .mini-pin { position: absolute; width: 10px; height: 10px; transform: translate(-50%,-50%); border: 2px solid #fff; border-radius: 50%; background: var(--risk-color, var(--green)); box-shadow: 0 1px 5px rgba(0,0,0,.7); cursor: move; touch-action: none; }
+    .mini-pin.selected { width: 14px; height: 14px; background: var(--yellow); border-color: #10203a; }
+    .viewer-status { position: absolute; z-index: 7; right: 14px; bottom: 14px; padding: 7px 9px; border-radius: 8px; background: rgba(15,29,49,.72); color: #eaf1f8; font-size: 10px; pointer-events: none; }
+    .view-controls { padding: 13px 16px 15px; background: #fff; }
+    .switch-row { display: flex; flex-wrap: wrap; align-items: center; gap: 9px 14px; }
+    .switch { display: inline-flex; align-items: center; gap: 7px; color: #435166; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .switch input { appearance: none; width: 34px; height: 19px; margin: 0; border-radius: 999px; background: #bdc6d1; position: relative; transition: .2s; }
+    .switch input::after { content: ""; position: absolute; width: 15px; height: 15px; left: 2px; top: 2px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); transition: .2s; }
+    .switch input:checked { background: #203a5c; }
+    .switch input:checked::after { transform: translateX(15px); }
+    .legend { margin-left: auto; display: flex; flex-wrap: wrap; gap: 9px; color: #5e6a7a; font-size: 10px; }
+    .legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 4px; border-radius: 50%; background: var(--c); }
+    .key-help { margin-top: 10px; color: #7a8492; font-size: 10px; text-align: right; }
+    .side-card .card-head { padding-bottom: 12px; }
+    .side-body { padding: 15px; }
+    .category-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .category-item { border: 1px solid #e0e6ed; border-radius: 10px; padding: 9px; background: #f8fafc; font-size: 11px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: 5px; }
+    .category-item.missing { border-color: #f1b8bc; background: #fff5f5; color: #a82731; }
+    .category-state { font-size: 9px; border-radius: 999px; padding: 3px 6px; background: #dcefe6; color: #09653d; white-space: nowrap; }
+    .missing .category-state { background: #ffe0e2; color: #bc202c; }
+    .selected-empty { padding: 25px 12px; color: #7c8795; text-align: center; font-size: 12px; line-height: 1.7; }
+    .coord-box { padding: 12px; margin-bottom: 13px; border: 1px solid #f1c74c; border-radius: 12px; background: #fff8d9; }
+    .coord-title { margin-bottom: 9px; font-size: 11px; font-weight: 900; color: #533e00; }
+    .coord-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .coord-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 8px; }
+    .coord-actions .btn { padding: 7px 6px; font-size: 10px; }
+    .form-grid { display: grid; gap: 10px; }
+    .field { display: grid; gap: 5px; }
+    .field.two { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .field label, .subfield label { color: #4d596b; font-size: 10px; font-weight: 900; }
+    .subfield { display: grid; gap: 5px; }
+    .field input, .field select, .field textarea, .subfield input, .subfield select { width: 100%; border: 1px solid #cfd7e1; border-radius: 9px; background: #fff; padding: 9px; color: #182337; font-size: 11px; }
+    .field textarea { min-height: 66px; resize: vertical; line-height: 1.45; }
+    .risk-result { display: flex; justify-content: space-between; align-items: center; border: 1px solid #dbe2ea; border-radius: 10px; padding: 10px; background: #f8fafc; }
+    .risk-pill { border-radius: 999px; padding: 6px 9px; background: var(--risk-color); color: #fff; font-size: 10px; font-weight: 900; }
+    .small-note { color: #7a8593; font-size: 9px; line-height: 1.45; }
+    .table-card { margin-top: 16px; }
+    .table-wrap { overflow: auto; max-height: 520px; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th { position: sticky; top: 0; z-index: 1; background: #f3f6f9; color: #526075; text-align: left; white-space: nowrap; }
+    th, td { border-bottom: 1px solid #e7ebf0; padding: 10px 11px; vertical-align: top; }
+    tbody tr { cursor: pointer; }
+    tbody tr:hover, tbody tr.selected { background: #fff9df; }
+    td.wrap { min-width: 210px; white-space: normal; line-height: 1.45; }
+    .empty-row { color: #7a8695; text-align: center; padding: 30px; }
+    .risk-mark { display: inline-block; min-width: 56px; border-radius: 999px; padding: 5px 7px; background: var(--risk-color); color: #fff; text-align: center; font-weight: 900; }
+    .modal-backdrop { position: fixed; z-index: 100; inset: 0; display: none; place-items: center; padding: 20px; background: rgba(8,17,29,.62); }
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(760px, 96vw); max-height: 90vh; overflow: auto; border-radius: 16px; background: #fff; box-shadow: 0 24px 70px rgba(0,0,0,.36); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #e5e9ef; }
+    .modal-head h2 { margin: 0; font-size: 18px; }
+    .modal-body { padding: 18px 20px; }
+    .modal-body textarea { width: 100%; min-height: 310px; border: 1px solid #cbd4df; border-radius: 11px; padding: 13px; font-family: Consolas, monospace; font-size: 12px; line-height: 1.55; resize: vertical; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+    .json-message { min-height: 20px; margin-top: 9px; color: #b0242d; font-size: 11px; font-weight: 700; }
+    #printReport { display: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .toast { position: fixed; z-index: 120; right: 24px; bottom: 24px; max-width: 380px; padding: 12px 16px; border-radius: 11px; background: #13253d; color: #fff; box-shadow: 0 10px 35px rgba(0,0,0,.28); font-size: 12px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: .22s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 1280px) {
+      .main-grid { grid-template-columns: minmax(0,1fr) 310px; }
+      .card-head { flex-direction: column; }
+      .action-row { justify-content: flex-start; }
+    }
+    @media print {
+      @page { size: A4 landscape; margin: 9mm; }
+      body { min-width: 0; background: #fff; color: #000; }
+      body > :not(#printReport) { display: none !important; }
+      #printReport { display: block; }
+      .print-title { display: flex; justify-content: space-between; align-items: end; margin-bottom: 7mm; }
+      .print-title h1 { margin: 0; font-size: 18pt; }
+      .print-meta { font-size: 8pt; }
+      .print-image { position: relative; width: 100%; max-height: 82mm; overflow: hidden; background: #111; }
+      .print-image img { display: block; width: 100%; height: 82mm; object-fit: fill; }
+      .print-pin { position: absolute; width: 8mm; height: 8mm; transform: translate(-50%,-50%); display: grid; place-items: center; border: 1.2mm solid var(--risk-color); border-radius: 50%; background: #ffc21a; font-size: 8pt; font-weight: 900; }
+      .print-table { margin-top: 5mm; width: 100%; font-size: 7pt; table-layout: fixed; }
+      .print-table th { position: static; background: #e9edf2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-table th, .print-table td { border: .2mm solid #929aa5; padding: 1.8mm; word-break: break-word; }
+      .print-foot { margin-top: 3mm; font-size: 7pt; color: #444; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">⚠</div>
+        <div><h1>하폐수처리장 360° 위험성평가</h1><p>현장 파노라마에서 위험 위치와 조치 내용을 직접 검토하세요.</p></div>
+      </div>
+      <div class="badges" aria-label="현재 작업 정보">
+        <span class="badge practice">실습용 예시</span>
+        <span class="badge" id="photoBadge">사진 · site.jpg</span>
+        <span class="badge" id="dateBadge">점검일 · -</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="점검 통계">
+      <article class="stat-card"><div><div class="stat-label">사진에 표시한 위험</div><div class="stat-value" id="statPins">0건</div></div><div class="stat-icon">📍</div></article>
+      <article class="stat-card"><div><div class="stat-label">허용불가·중대 (12점 이상)</div><div class="stat-value" id="statHigh">0건</div></div><div class="stat-icon">⚠️</div></article>
+      <article class="stat-card"><div><div class="stat-label">점검 범주 누락</div><div class="stat-value" id="statMissing">8개</div></div><div class="stat-icon">🔎</div></article>
+      <article class="stat-card"><div><div class="stat-label">기존 보고서 미반영</div><div class="stat-value" id="statUnreported">0건</div></div><div class="stat-icon">📄</div></article>
+    </section>
+
+    <section class="main-grid">
+      <article class="card">
+        <div class="card-head">
+          <div><div class="eyebrow">SITE VIEW</div><h2>현장 탐색</h2><p>사진을 둘러보고 위험요인의 실제 위치를 확인하거나 바로잡으세요.</p></div>
+          <div class="action-row">
+            <button class="btn" id="changePhotoBtn" type="button">사진 바꾸기</button>
+            <button class="btn active" id="wrapBtn" type="button" aria-pressed="true">360° 이어 보기</button>
+            <button class="btn primary" id="addPinBtn" type="button">＋ 핀 추가</button>
+            <button class="btn" id="jsonBtn" type="button">AI 결과(JSON) 붙여넣기</button>
+            <button class="btn danger remove-all" type="button">핀 모두 제거</button>
+          </div>
+        </div>
+        <div class="viewer-wrap">
+          <div id="viewer" tabindex="0" aria-label="360도 현장 파노라마">
+            <div id="panoStage" aria-hidden="false">
+              <img class="pano-img muted-copy" data-copy="0" src="site.jpg" alt="">
+              <img class="pano-img" data-copy="1" src="site.jpg" alt="현장 파노라마 사진">
+              <img class="pano-img muted-copy" data-copy="2" src="site.jpg" alt="">
+              <div id="pinLayer" class="pin-layer"></div>
+            </div>
+            <div class="viewer-tools">
+              <button id="zoomOutBtn" type="button" title="축소">−</button>
+              <button id="zoomInBtn" type="button" title="확대">＋</button>
+              <button id="resetViewBtn" type="button">처음 시점</button>
+              <button id="fullscreenBtn" type="button">전체 화면</button>
+            </div>
+            <div class="viewer-hint" id="viewerHint">마우스로 현장을 둘러보세요</div>
+            <div class="mode-banner" id="modeBanner">사진을 클릭해 핀을 추가하세요</div>
+            <div class="minimap-box">
+              <div class="minimap-title">전체 파노라마</div>
+              <div id="minimap" aria-label="전체 파노라마 미니맵">
+                <img id="miniImage" src="site.jpg" alt="">
+                <div id="miniViewport"></div>
+                <div id="miniPins"></div>
+              </div>
+            </div>
+            <div class="viewer-status" id="viewStatus">확대 1.0배 · 중앙 50%</div>
+          </div>
+        </div>
+        <div class="view-controls">
+          <div class="switch-row">
+            <label class="switch"><input id="edgeToggle" type="checkbox" checked> 마우스 반응 이동</label>
+            <label class="switch"><input id="autoToggle" type="checkbox" checked> 자동 회전</label>
+            <label class="switch"><input id="reduceToggle" type="checkbox"> 움직임 줄이기</label>
+            <label class="switch"><input id="labelsToggle" type="checkbox" checked> 표시 보기</label>
+            <div class="legend" aria-label="위험도 색 범례">
+              <span style="--c:#138a58">8 이하</span><span style="--c:#e0a000">9~10</span><span style="--c:#ed6d1f">12~15</span><span style="--c:#d9363e">16 이상</span>
+            </div>
+          </div>
+          <div class="key-help">키보드: ← → 회전 · ↑ ↓ 위아래 · + − 확대/축소 · 핀 선택 시 방향키로 위치 이동</div>
+        </div>
+      </article>
+
+      <aside class="side-stack">
+        <section class="card side-card">
+          <div class="card-head"><div><div class="eyebrow">CHECK LIST</div><h2>점검 범주</h2><p>사진에 표시되지 않은 범주를 확인하세요.</p></div></div>
+          <div class="side-body"><div class="category-list" id="categoryList"></div></div>
+        </section>
+
+        <section class="card side-card">
+          <div class="card-head"><div><div class="eyebrow">SELECTED PIN</div><h2>선택한 핀</h2><p>내용과 위치를 사람이 최종 확인합니다.</p></div></div>
+          <div class="side-body" id="pinEditor"><div class="selected-empty">사진이나 표에서 핀을 선택하세요.<br>핀을 새로 만들려면 <b>＋ 핀 추가</b>를 누르세요.</div></div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="card table-card">
+      <div class="card-head">
+        <div><div class="eyebrow">RISK TABLE</div><h2>위험성평가표</h2><p>위험도 높은 순서로 확인하고 파일로 저장할 수 있습니다.</p></div>
+        <div class="action-row">
+          <button class="btn primary" id="saveBtn" type="button">작업 저장</button>
+          <button class="btn" id="loadBtn" type="button">작업 불러오기</button>
+          <button class="btn" id="csvBtn" type="button">위험성평가표 CSV</button>
+          <button class="btn" id="printBtn" type="button">인쇄(게시용)</button>
+          <button class="btn danger remove-all" type="button">핀 모두 제거</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>번호</th><th>위치(x, y)</th><th>유형</th><th>유해·위험요인</th><th>빈도</th><th>강도</th><th>위험도</th><th>개선대책</th><th>보고서 반영</th></tr></thead>
+          <tbody id="riskTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="jsonModal" role="dialog" aria-modal="true" aria-labelledby="jsonTitle">
+    <section class="modal">
+      <div class="modal-head"><h2 id="jsonTitle">AI 결과(JSON) 붙여넣기</h2><button class="btn" id="jsonCloseX" type="button">닫기</button></div>
+      <div class="modal-body">
+        <p class="small-note">JSON = [ ] 안의 { } 하나가 핀 하나입니다. 앞뒤 설명이나 ``` 표시가 있어도 배열 부분을 찾아 읽습니다.</p>
+        <textarea id="jsonInput" spellcheck="false" placeholder='[{"x":0,"y":0,"유형":"","위험요인":"","법적기준":"","빈도":1,"강도":1,"개선대책":"","관리방법":""}]'></textarea>
+        <div class="json-message" id="jsonMessage" role="alert"></div>
+        <div class="modal-actions"><button class="btn primary" id="jsonAddBtn" type="button">추가</button><button class="btn danger" id="jsonReplaceBtn" type="button">기존 핀 지우고 바꾸기</button><button class="btn" id="jsonCloseBtn" type="button">닫기</button></div>
+      </div>
+    </section>
+  </div>
+
+  <input class="sr-only" id="photoInput" type="file" accept="image/*">
+  <input class="sr-only" id="loadInput" type="file" accept="application/json,.json">
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <section id="printReport" aria-hidden="true"></section>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const STORAGE_KEY = 'wastewater-360-risk-work-v1';
+    const TYPES = ['밀폐공간', '추락', '질식·유해가스', '시설물·개구부', '정비·청소', '기타'];
+    const CHECK_CATEGORIES = ['밀폐공간', '추락', '질식', '유해가스', '시설물', '개구부', '정비', '청소'];
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+    const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    const nowDate = () => new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    const state = {
+      pins: [], selectedId: null, nextId: 1,
+      photoName: 'site.jpg', photoSrc: 'site.jpg', photoObjectUrl: null,
+      imageAspect: 4000 / 1500, centerX: .5, centerY: .5, zoom: 1,
+      wrap: true, edgeMove: true, autoRotate: true, reduceMotion: false, showLabels: true,
+      addMode: false, repickMode: false, draggingView: false, draggingPin: null,
+      pointerInside: false, pointerX: 0, lastInteraction: performance.now(),
+      currentVelocity: 0, inertiaX: 0, inertiaY: 0, smoothTarget: null
+    };
+
+    const viewer = $('#viewer');
+    const stage = $('#panoStage');
+    const pinLayer = $('#pinLayer');
+    const minimap = $('#minimap');
+    let layout = { vw: 1, vh: 1, imageW: 1, imageH: 1, stageX: 0, stageY: 0 };
+    let toastTimer = 0;
+    let saveTimer = 0;
+
+    function riskScore(pin) { return clamp(Number(pin.frequency) || 1, 1, 5) * clamp(Number(pin.severity) || 1, 1, 4); }
+    function riskInfo(score) {
+      if (score >= 16) return { label: '허용불가', color: '#d9363e' };
+      if (score >= 12) return { label: '중대', color: '#ed6d1f' };
+      if (score >= 9) return { label: '상당한 수준', color: '#e0a000' };
+      if (score === 8) return { label: '경미', color: '#138a58' };
+      if (score >= 4) return { label: '미미', color: '#138a58' };
+      return { label: '무시', color: '#138a58' };
+    }
+    function selectedPin() { return state.pins.find(pin => pin.id === state.selectedId) || null; }
+    function makePin(data = {}) {
+      const pin = {
+        id: Number.isFinite(Number(data.id)) ? Number(data.id) : state.nextId++,
+        x: clamp(Number(data.x) || 0, 0, 100), y: clamp(Number(data.y) || 0, 0, 100),
+        type: TYPES.includes(data.type) ? data.type : normalizeType(data.type || data['유형']),
+        hazard: String(data.hazard ?? data['위험요인'] ?? data['유해·위험요인'] ?? ''),
+        legal: String(data.legal ?? data['법적기준'] ?? data['법적 기준'] ?? ''),
+        frequency: clamp(parseInt(data.frequency ?? data['빈도'] ?? 1, 10) || 1, 1, 5),
+        severity: clamp(parseInt(data.severity ?? data['강도'] ?? 1, 10) || 1, 1, 4),
+        frequencyReason: String(data.frequencyReason ?? data['빈도근거'] ?? data['빈도 근거'] ?? ''),
+        severityReason: String(data.severityReason ?? data['강도근거'] ?? data['강도 근거'] ?? ''),
+        measure: String(data.measure ?? data['개선대책'] ?? data['감소대책'] ?? ''),
+        management: String(data.management ?? data['관리방법'] ?? data['현장 관리방법'] ?? ''),
+        report: ['있음','부분','없음'].includes(data.report ?? data['기존보고서반영'] ?? data['기존 보고서 반영']) ? (data.report ?? data['기존보고서반영'] ?? data['기존 보고서 반영']) : '없음'
+      };
+      state.nextId = Math.max(state.nextId, pin.id + 1);
+      return pin;
+    }
+    function normalizeType(value) {
+      const text = String(value || '').replace(/\s/g, '');
+      if (!text) return '기타';
+      if (text.includes('밀폐')) return '밀폐공간';
+      if (text.includes('추락') || text.includes('낙상')) return '추락';
+      if (text.includes('질식') || text.includes('가스') || text.includes('산소') || text.includes('황화수소')) return '질식·유해가스';
+      if (text.includes('시설') || text.includes('개구') || text.includes('덮개') || text.includes('난간')) return '시설물·개구부';
+      if (text.includes('정비') || text.includes('청소') || text.includes('보수')) return '정비·청소';
+      return '기타';
+    }
+    function toast(message) {
+      const box = $('#toast');
+      box.textContent = message; box.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => box.classList.remove('show'), 2300);
+    }
+    function markInteraction() {
+      state.lastInteraction = performance.now();
+      $('#viewerHint').classList.add('hidden');
+    }
+    function serializableState() {
+      return {
+        version: 1, savedAt: new Date().toISOString(), photoName: state.photoName,
+        view: { centerX: state.centerX, centerY: state.centerY, zoom: state.zoom, wrap: state.wrap },
+        options: { edgeMove: state.edgeMove, autoRotate: state.autoRotate, reduceMotion: state.reduceMotion, showLabels: state.showLabels },
+        pins: state.pins
+      };
+    }
+    function queueSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serializableState())); }
+        catch (error) { console.warn('자동 저장 실패', error); }
+      }, 180);
+    }
+    function loadAutoSave() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        applyWorkData(JSON.parse(raw), false);
+        toast('브라우저에 저장된 작업을 불러왔습니다.');
+      } catch (error) { console.warn('자동 저장 자료를 읽지 못했습니다.', error); }
+    }
+    function applyWorkData(data, announce = true) {
+      if (!data || !Array.isArray(data.pins)) throw new Error('저장 파일에 pins 배열이 없습니다.');
+      state.pins = data.pins.map(makePin);
+      state.nextId = Math.max(1, ...state.pins.map(p => p.id + 1));
+      const view = data.view || {};
+      state.centerX = clamp(Number(view.centerX) || .5, 0, 1);
+      state.centerY = clamp(Number(view.centerY) || .5, 0, 1);
+      state.zoom = clamp(Number(view.zoom) || 1, 1, 3);
+      state.wrap = view.wrap !== false;
+      const opt = data.options || {};
+      state.edgeMove = opt.edgeMove !== false; state.autoRotate = opt.autoRotate !== false;
+      state.reduceMotion = !!opt.reduceMotion; state.showLabels = opt.showLabels !== false;
+      state.selectedId = null;
+      syncControls(); renderAll();
+      if (announce) toast(`${state.pins.length}개의 핀을 불러왔습니다.`);
+    }
+
+    function syncControls() {
+      $('#edgeToggle').checked = state.edgeMove; $('#autoToggle').checked = state.autoRotate;
+      $('#reduceToggle').checked = state.reduceMotion; $('#labelsToggle').checked = state.showLabels;
+      $('#wrapBtn').classList.toggle('active', state.wrap); $('#wrapBtn').setAttribute('aria-pressed', state.wrap);
+      $('#wrapBtn').textContent = state.wrap ? '360° 이어 보기' : '끝에서 멈춤';
+      pinLayer.hidden = !state.showLabels; $('#miniPins').hidden = !state.showLabels;
+    }
+    function measureLayout() {
+      const rect = viewer.getBoundingClientRect();
+      layout.vw = rect.width || 1; layout.vh = rect.height || 1;
+      const baseW = Math.max(layout.vw * 1.6, layout.vh * 1.2 * state.imageAspect);
+      layout.imageW = baseW * state.zoom; layout.imageH = layout.imageW / state.imageAspect;
+      stage.style.width = `${layout.imageW * 3}px`; stage.style.height = `${layout.imageH}px`;
+      $$('.pano-img', stage).forEach((img, index) => { img.style.left = `${index * layout.imageW}px`; img.style.width = `${layout.imageW}px`; img.style.height = `${layout.imageH}px`; img.style.visibility = state.wrap || index === 1 ? 'visible' : 'hidden'; });
+      updateViewPosition();
+      updatePinPositions(); updateMinimap();
+    }
+    function normalizeView() {
+      if (state.wrap) state.centerX = ((state.centerX % 1) + 1) % 1;
+      else {
+        const halfX = Math.min(.5, layout.vw / (2 * layout.imageW));
+        state.centerX = clamp(state.centerX, halfX, 1 - halfX);
+      }
+      const halfY = Math.min(.5, layout.vh / (2 * layout.imageH));
+      state.centerY = clamp(state.centerY, halfY, 1 - halfY);
+    }
+    function updateViewPosition() {
+      normalizeView();
+      layout.stageX = layout.vw / 2 - layout.imageW * (1 + state.centerX);
+      layout.stageY = layout.vh / 2 - layout.imageH * state.centerY;
+      stage.style.transform = `translate3d(${layout.stageX}px, ${layout.stageY}px, 0)`;
+      $('#viewStatus').textContent = `확대 ${state.zoom.toFixed(1)}배 · 가로 ${Math.round(state.centerX*100)}% · 세로 ${Math.round(state.centerY*100)}%`;
+      updateMinimap();
+    }
+    function moveView(dx, dy) {
+      state.centerX += dx; state.centerY += dy;
+      updateViewPosition(); queueSave();
+    }
+    function animatePanTo(x, y = state.centerY) {
+      state.smoothTarget = { x: clamp(x, 0, 1), y: clamp(y, 0, 1) };
+      markInteraction();
+    }
+    function setZoom(value) {
+      state.zoom = clamp(Number(value), 1, 3); measureLayout(); queueSave(); markInteraction();
+    }
+    function screenToImage(clientX, clientY) {
+      const rect = viewer.getBoundingClientRect();
+      const worldX = clientX - rect.left - layout.stageX;
+      let within = ((worldX % layout.imageW) + layout.imageW) % layout.imageW;
+      if (!state.wrap) within = clamp(worldX - layout.imageW, 0, layout.imageW);
+      const y = clamp((clientY - rect.top - layout.stageY) / layout.imageH, 0, 1);
+      return { x: clamp(within / layout.imageW * 100, 0, 100), y: y * 100 };
+    }
+    function updatePinPositions() {
+      $$('.pin', pinLayer).forEach(el => {
+        const pin = state.pins.find(p => p.id === Number(el.dataset.id));
+        if (!pin) return;
+        const copy = Number(el.dataset.copy);
+        el.style.left = `${(copy + pin.x / 100) * layout.imageW}px`;
+        el.style.top = `${pin.y / 100 * layout.imageH}px`;
+      });
+    }
+    function renderPins() {
+      const copies = state.wrap ? [0,1,2] : [1];
+      pinLayer.innerHTML = state.pins.flatMap(pin => copies.map(copy => {
+        const risk = riskInfo(riskScore(pin));
+        const hazard = pin.hazard || '위험요인 내용을 입력하세요';
+        return `<button class="pin ${pin.id === state.selectedId ? 'selected' : ''}" type="button" data-id="${pin.id}" data-copy="${copy}" style="--risk-color:${risk.color}" aria-label="${pin.id}번 ${esc(pin.type)} 핀"><span class="pin-dot"><span>${pin.id}</span></span><span class="pin-tip"><b>${pin.id}번 ${esc(pin.type)}</b><br>${esc(hazard)}</span></button>`;
+      })).join('');
+      updatePinPositions();
+    }
+    function updateMinimap() {
+      const widthPct = clamp(layout.vw / layout.imageW * 100, 3, 100);
+      const left = clamp(state.centerX * 100 - widthPct / 2, 0, 100 - widthPct);
+      const box = $('#miniViewport'); box.style.width = `${widthPct}%`; box.style.left = `${left}%`;
+    }
+    function renderMiniPins() {
+      $('#miniPins').innerHTML = state.pins.map(pin => {
+        const risk = riskInfo(riskScore(pin));
+        return `<button class="mini-pin ${pin.id === state.selectedId ? 'selected' : ''}" type="button" data-id="${pin.id}" style="left:${pin.x}%;top:${pin.y}%;--risk-color:${risk.color}" aria-label="${pin.id}번 핀 위치 이동"></button>`;
+      }).join('');
+    }
+    function categoryCovered(category) {
+      return state.pins.some(pin => pin.type.includes(category));
+    }
+    function renderCategories() {
+      $('#categoryList').innerHTML = CHECK_CATEGORIES.map(name => {
+        const covered = categoryCovered(name);
+        return `<div class="category-item ${covered ? '' : 'missing'}"><span>${name}</span><span class="category-state">${covered ? '확인' : '누락?'}</span></div>`;
+      }).join('');
+    }
+    function renderStats() {
+      const missing = CHECK_CATEGORIES.filter(name => !categoryCovered(name)).length;
+      $('#statPins').textContent = `${state.pins.length}건`;
+      $('#statHigh').textContent = `${state.pins.filter(pin => riskScore(pin) >= 12).length}건`;
+      $('#statMissing').textContent = `${missing}개`;
+      $('#statUnreported').textContent = `${state.pins.filter(pin => pin.report !== '있음').length}건`;
+    }
+    function renderEditor() {
+      const root = $('#pinEditor'); const pin = selectedPin();
+      if (!pin) { root.innerHTML = '<div class="selected-empty">사진이나 표에서 핀을 선택하세요.<br>핀을 새로 만들려면 <b>＋ 핀 추가</b>를 누르세요.</div>'; return; }
+      const score = riskScore(pin), risk = riskInfo(score);
+      root.innerHTML = `
+        <div class="coord-box"><div class="coord-title">핀 위치(사진 기준 %)</div>
+          <div class="coord-grid"><div class="subfield"><label for="pinX">x · 왼쪽 0 ~ 오른쪽 100</label><input id="pinX" data-field="x" type="number" min="0" max="100" step="0.1" value="${pin.x.toFixed(1)}"></div><div class="subfield"><label for="pinY">y · 위 0 ~ 아래 100</label><input id="pinY" data-field="y" type="number" min="0" max="100" step="0.1" value="${pin.y.toFixed(1)}"></div></div>
+          <div class="coord-actions"><button class="btn ${state.repickMode ? 'active' : ''}" id="repickBtn" type="button">📍 위치 다시 찍기</button><button class="btn" id="goPinBtn" type="button">이 핀으로 시점 이동</button></div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label for="pinType">유형</label><select id="pinType" data-field="type">${TYPES.map(t => `<option ${pin.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+          <div class="field"><label for="pinHazard">유해·위험요인</label><textarea id="pinHazard" data-field="hazard" placeholder="[작업] 중 [누가] [무엇 때문에] [어떻게 다치는가]">${esc(pin.hazard)}</textarea></div>
+          <div class="field"><label for="pinLegal">법적 기준</label><textarea id="pinLegal" data-field="legal" placeholder="법령명 제○조(제○항) (원문 확인) 또는 확인 필요">${esc(pin.legal)}</textarea><div class="small-note">법령 조문은 원문 확인 후 최종 적용하세요.</div></div>
+          <div class="field two"><div class="subfield"><label for="pinFrequency">빈도 (1~5)</label><select id="pinFrequency" data-field="frequency">${[1,2,3,4,5].map(v => `<option ${pin.frequency===v?'selected':''}>${v}</option>`).join('')}</select></div><div class="subfield"><label for="pinSeverity">강도 (1~4)</label><select id="pinSeverity" data-field="severity">${[1,2,3,4].map(v => `<option ${pin.severity===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
+          <div class="field two"><div class="subfield"><label for="frequencyReason">빈도 점수 근거</label><input id="frequencyReason" data-field="frequencyReason" value="${esc(pin.frequencyReason)}" placeholder="한 줄 근거"></div><div class="subfield"><label for="severityReason">강도 점수 근거</label><input id="severityReason" data-field="severityReason" value="${esc(pin.severityReason)}" placeholder="한 줄 근거"></div></div>
+          <div class="risk-result"><div><b>위험도 ${score}점</b><div class="small-note">빈도 ${pin.frequency} × 강도 ${pin.severity}</div></div><span class="risk-pill" style="--risk-color:${risk.color}">${risk.label}</span></div>
+          <div class="field"><label for="pinMeasure">개선대책</label><textarea id="pinMeasure" data-field="measure" placeholder="[제거] → [공학] → [관리] → [보호구] 순서로 작성">${esc(pin.measure)}</textarea></div>
+          <div class="field"><label for="pinManagement">현장 관리방법</label><textarea id="pinManagement" data-field="management">${esc(pin.management)}</textarea></div>
+          <div class="field"><label for="pinReport">기존 보고서 반영</label><select id="pinReport" data-field="report">${['있음','부분','없음'].map(v => `<option ${pin.report===v?'selected':''}>${v}</option>`).join('')}</select></div>
+          <button class="btn danger" id="deletePinBtn" type="button">이 핀 삭제</button>
+          <div class="small-note">최종 위험 판단과 결재는 사람이 합니다.</div>
+        </div>`;
+    }
+    function renderTable() {
+      const body = $('#riskTableBody');
+      if (!state.pins.length) { body.innerHTML = '<tr><td class="empty-row" colspan="9">아직 표시한 위험이 없습니다.</td></tr>'; return; }
+      body.innerHTML = [...state.pins].sort((a,b) => riskScore(b)-riskScore(a) || a.id-b.id).map(pin => {
+        const score = riskScore(pin), risk = riskInfo(score);
+        return `<tr data-id="${pin.id}" class="${pin.id===state.selectedId?'selected':''}"><td>${pin.id}</td><td>${pin.x.toFixed(1)}, ${pin.y.toFixed(1)}</td><td>${esc(pin.type)}</td><td class="wrap">${esc(pin.hazard || '-')}</td><td>${pin.frequency}</td><td>${pin.severity}</td><td><span class="risk-mark" style="--risk-color:${risk.color}">${score} · ${risk.label}</span></td><td class="wrap">${esc(pin.measure || '-')}</td><td>${esc(pin.report)}</td></tr>`;
+      }).join('');
+    }
+    function renderAll() {
+      renderPins(); renderMiniPins(); renderCategories(); renderStats(); renderEditor(); renderTable();
+      $('#photoBadge').textContent = `사진 · ${state.photoName}`; syncControls(); measureLayout(); queueSave();
+    }
+    function selectPin(id) {
+      state.selectedId = state.pins.some(pin => pin.id === Number(id)) ? Number(id) : null;
+      state.addMode = false; state.repickMode = false; updateModeUI(); renderAll();
+    }
+    function updateModeUI() {
+      $('#addPinBtn').classList.toggle('active', state.addMode);
+      viewer.classList.toggle('add-mode', state.addMode || state.repickMode);
+      const banner = $('#modeBanner');
+      banner.textContent = state.repickMode ? '선택한 핀의 새 위치를 클릭하세요' : '사진을 클릭해 핀을 추가하세요';
+      banner.classList.toggle('show', state.addMode || state.repickMode);
+    }
+    function addPinAt(x, y) {
+      const pin = makePin({ x, y, type: '기타', frequency: 1, severity: 1 });
+      state.pins.push(pin); state.selectedId = pin.id; state.addMode = false; updateModeUI(); renderAll();
+      toast(`${pin.id}번 핀을 추가했습니다.`);
+    }
+    function moveSelectedPin(x, y) {
+      const pin = selectedPin(); if (!pin) return;
+      pin.x = clamp(Number(x), 0, 100); pin.y = clamp(Number(y), 0, 100);
+      renderPins(); renderMiniPins(); renderEditor(); renderTable(); updateMinimap(); queueSave();
+    }
+    function removeAllPins() {
+      if (!state.pins.length) { alert('지울 핀이 없습니다.'); return; }
+      if (!confirm(`핀 ${state.pins.length}개를 모두 지울까요?\n되돌릴 수 없으니 먼저 [작업 저장]을 권장합니다.`)) return;
+      state.pins = []; state.selectedId = null; state.nextId = 1; state.addMode = false; state.repickMode = false;
+      updateModeUI(); renderAll(); toast('모든 핀을 제거했습니다.');
+    }
+    function deleteSelected() {
+      const pin = selectedPin(); if (!pin) return;
+      if (!confirm(`${pin.id}번 핀을 삭제할까요?`)) return;
+      state.pins = state.pins.filter(item => item.id !== pin.id); state.selectedId = null; renderAll(); toast('핀을 삭제했습니다.');
+    }
+
+    function pointerDownViewer(event) {
+      if (event.button !== 0 || event.target.closest('.viewer-tools,.minimap-box,.pin')) return;
+      markInteraction();
+      if (state.addMode) { const pt = screenToImage(event.clientX,event.clientY); addPinAt(pt.x,pt.y); return; }
+      if (state.repickMode) { const pt = screenToImage(event.clientX,event.clientY); moveSelectedPin(pt.x,pt.y); state.repickMode=false; updateModeUI(); renderEditor(); toast('핀 위치를 다시 지정했습니다.'); return; }
+      state.draggingView = true; state.smoothTarget = null; state.inertiaX = 0; state.inertiaY = 0;
+      state.viewDrag = { id:event.pointerId, x:event.clientX, y:event.clientY, time:performance.now(), vx:0, vy:0 };
+      viewer.setPointerCapture(event.pointerId); viewer.classList.add('dragging');
+    }
+    function pointerMoveViewer(event) {
+      const rect = viewer.getBoundingClientRect(); state.pointerX = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+      if (!state.draggingView || !state.viewDrag || event.pointerId !== state.viewDrag.id) return;
+      const now = performance.now(), dt = Math.max(8, now - state.viewDrag.time);
+      const dx = event.clientX - state.viewDrag.x, dy = event.clientY - state.viewDrag.y;
+      moveView(-dx/layout.imageW, -dy/layout.imageH);
+      state.viewDrag.vx = (-dx/layout.imageW)/(dt/1000); state.viewDrag.vy = (-dy/layout.imageH)/(dt/1000);
+      Object.assign(state.viewDrag, {x:event.clientX,y:event.clientY,time:now});
+    }
+    function pointerUpViewer(event) {
+      if (!state.draggingView || !state.viewDrag || event.pointerId !== state.viewDrag.id) return;
+      state.draggingView = false; viewer.classList.remove('dragging');
+      if (!state.reduceMotion) { state.inertiaX = state.viewDrag.vx; state.inertiaY = state.viewDrag.vy; }
+      state.viewDrag = null; try { viewer.releasePointerCapture(event.pointerId); } catch (_) {}
+    }
+    function pinPointerDown(event) {
+      const el = event.target.closest('.pin'); if (!el || event.button !== 0) return;
+      event.stopPropagation(); markInteraction(); selectPin(Number(el.dataset.id));
+      state.draggingPin = { id:Number(el.dataset.id), pointerId:event.pointerId, source:'viewer' };
+      el.setPointerCapture(event.pointerId);
+    }
+    function pinPointerMove(event) {
+      if (!state.draggingPin || state.draggingPin.source !== 'viewer' || event.pointerId !== state.draggingPin.pointerId) return;
+      event.stopPropagation(); const pt=screenToImage(event.clientX,event.clientY); moveSelectedPin(pt.x,pt.y);
+    }
+    function pinPointerUp(event) {
+      if (!state.draggingPin || state.draggingPin.source !== 'viewer' || event.pointerId !== state.draggingPin.pointerId) return;
+      event.stopPropagation(); state.draggingPin=null; toast('핀 위치를 저장했습니다.');
+    }
+    function miniPointerDown(event) {
+      const pinEl = event.target.closest('.mini-pin'); markInteraction();
+      if (pinEl) {
+        event.stopPropagation(); selectPin(Number(pinEl.dataset.id));
+        state.draggingPin = { id:Number(pinEl.dataset.id), pointerId:event.pointerId, source:'mini' };
+        pinEl.setPointerCapture(event.pointerId); return;
+      }
+      const rect=minimap.getBoundingClientRect(); animatePanTo((event.clientX-rect.left)/rect.width, (event.clientY-rect.top)/rect.height);
+    }
+    function miniPointerMove(event) {
+      if (!state.draggingPin || state.draggingPin.source !== 'mini' || event.pointerId !== state.draggingPin.pointerId) return;
+      event.stopPropagation(); const rect=minimap.getBoundingClientRect();
+      moveSelectedPin((event.clientX-rect.left)/rect.width*100, (event.clientY-rect.top)/rect.height*100);
+    }
+    function miniPointerUp(event) {
+      if (!state.draggingPin || state.draggingPin.source !== 'mini' || event.pointerId !== state.draggingPin.pointerId) return;
+      event.stopPropagation(); state.draggingPin=null; toast('미니맵에서 핀 위치를 저장했습니다.');
+    }
+    function animationLoop(now) {
+      const dt = Math.min(.05, Math.max(.001, (now - (animationLoop.last || now))/1000)); animationLoop.last = now;
+      if (state.smoothTarget) {
+        let dx = state.smoothTarget.x - state.centerX;
+        if (state.wrap && Math.abs(dx) > .5) dx -= Math.sign(dx);
+        const dy = state.smoothTarget.y - state.centerY;
+        const factor = state.reduceMotion ? 1 : Math.min(1, dt*7);
+        state.centerX += dx*factor; state.centerY += dy*factor;
+        if (Math.abs(dx)<.001 && Math.abs(dy)<.001) { state.centerX=state.smoothTarget.x; state.centerY=state.smoothTarget.y; state.smoothTarget=null; }
+        updateViewPosition();
+      } else if (!state.draggingView && !state.draggingPin) {
+        let targetVelocity = 0;
+        if (state.pointerInside && state.edgeMove) {
+          const norm = (state.pointerX-.5)/.5, abs = Math.abs(norm);
+          if (abs > .84) targetVelocity = Math.sign(norm)*Math.pow((abs-.84)/.16,2)*.09;
+        } else if (!state.pointerInside && state.autoRotate && now-state.lastInteraction>2500) targetVelocity = .006;
+        if (state.reduceMotion) targetVelocity *= .25;
+        state.currentVelocity += (targetVelocity-state.currentVelocity)*Math.min(1,dt*4.2);
+        if (Math.abs(state.inertiaX)>.0001 || Math.abs(state.inertiaY)>.0001) {
+          state.centerX += state.inertiaX*dt; state.centerY += state.inertiaY*dt;
+          const decay = Math.pow(state.reduceMotion ? .015 : .055,dt);
+          state.inertiaX*=decay; state.inertiaY*=decay;
+        } else state.inertiaX=state.inertiaY=0;
+        if (Math.abs(state.currentVelocity)>.00001) state.centerX += state.currentVelocity*dt;
+        if (Math.abs(state.currentVelocity)>.00001 || state.inertiaX || state.inertiaY) updateViewPosition();
+      }
+      requestAnimationFrame(animationLoop);
+    }
+
+    function extractJsonArray(text) {
+      const clean = String(text || '').replace(/```(?:json)?/gi,'').replace(/```/g,'');
+      for (let start=0; start<clean.length; start++) {
+        if (clean[start] !== '[') continue;
+        let depth=0, quote=false, escaped=false;
+        for (let i=start; i<clean.length; i++) {
+          const ch=clean[i];
+          if (quote) { if (escaped) escaped=false; else if(ch==='\\') escaped=true; else if(ch==='"') quote=false; continue; }
+          if (ch==='"') { quote=true; continue; }
+          if (ch==='[') depth++; else if(ch===']') depth--;
+          if (depth===0) { const candidate=clean.slice(start,i+1); try { const parsed=JSON.parse(candidate); if(Array.isArray(parsed)) return parsed; } catch (_) {} break; }
+        }
+      }
+      throw new Error('JSON 배열([ ... ])을 찾거나 해석할 수 없습니다. 따옴표와 쉼표를 확인하세요.');
+    }
+    function normalizeImportedItem(item, index) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) throw new Error(`${index+1}번째 항목이 { } 형식이 아닙니다.`);
+      let x=Number(item.x ?? item.X ?? item['가로']), y=Number(item.y ?? item.Y ?? item['세로']);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error(`${index+1}번째 핀의 x 또는 y 좌표가 숫자가 아닙니다.`);
+      if (x>=0 && x<=1) x*=100; if (y>=0 && y<=1) y*=100;
+      return makePin({...item,x:clamp(x,0,100),y:clamp(y,0,100),type:normalizeType(item.type ?? item['유형'])});
+    }
+    function importAI(replace) {
+      const msg=$('#jsonMessage'); msg.textContent='';
+      try {
+        const array=extractJsonArray($('#jsonInput').value);
+        if (!array.length) throw new Error('배열 안에 핀 항목이 없습니다.');
+        const imported=array.map(normalizeImportedItem);
+        if (replace) {
+          if (state.pins.length && !confirm(`기존 핀 ${state.pins.length}개를 지우고 AI 결과로 바꿀까요?`)) return;
+          state.pins=[]; state.nextId=1;
+          imported.forEach(pin => { pin.id=state.nextId++; });
+        }
+        state.pins.push(...imported); state.selectedId=imported[0]?.id ?? null; renderAll(); closeJsonModal(); toast(`${imported.length}개의 AI 핀을 불러왔습니다.`);
+      } catch(error) { msg.textContent=`읽지 못했습니다: ${error.message}`; }
+    }
+    function openJsonModal() { $('#jsonModal').classList.add('open'); $('#jsonMessage').textContent=''; setTimeout(()=>$('#jsonInput').focus(),0); }
+    function closeJsonModal() { $('#jsonModal').classList.remove('open'); }
+    function downloadBlob(content, type, filename) {
+      const url=URL.createObjectURL(new Blob([content],{type})); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }
+    function saveWork() {
+      const text=JSON.stringify(serializableState(),null,2); downloadBlob(text,'application/json;charset=utf-8',`위험성평가_작업_${new Date().toISOString().slice(0,10)}.json`); toast('작업 JSON 파일을 저장했습니다.');
+    }
+    function csvCell(value) { return `"${String(value??'').replace(/"/g,'""')}"`; }
+    function exportCsv() {
+      const header=['번호','x(%)','y(%)','유형','유해·위험요인','법적 기준','빈도','빈도 근거','강도','강도 근거','위험도','위험수준','개선대책','현장 관리방법','기존 보고서 반영'];
+      const rows=[...state.pins].sort((a,b)=>riskScore(b)-riskScore(a)||a.id-b.id).map(pin=>[pin.id,pin.x.toFixed(1),pin.y.toFixed(1),pin.type,pin.hazard,pin.legal,pin.frequency,pin.frequencyReason,pin.severity,pin.severityReason,riskScore(pin),riskInfo(riskScore(pin)).label,pin.measure,pin.management,pin.report]);
+      const csv='\ufeff'+[header,...rows].map(row=>row.map(csvCell).join(',')).join('\r\n'); downloadBlob(csv,'text/csv;charset=utf-8',`위험성평가표_${new Date().toISOString().slice(0,10)}.csv`); toast('엑셀용 CSV를 저장했습니다.');
+    }
+    function buildPrintReport() {
+      const pins=[...state.pins].sort((a,b)=>riskScore(b)-riskScore(a)||a.id-b.id);
+      $('#printReport').innerHTML=`<div class="print-title"><h1>하폐수처리장 360° 위험성평가</h1><div class="print-meta">사진: ${esc(state.photoName)} · 점검일: ${esc(nowDate())}</div></div><div class="print-image"><img src="${esc(state.photoSrc)}" alt="전체 현장 사진">${state.pins.map(pin=>`<span class="print-pin" style="left:${pin.x}%;top:${pin.y}%;--risk-color:${riskInfo(riskScore(pin)).color}">${pin.id}</span>`).join('')}</div><table class="print-table"><thead><tr><th style="width:5%">번호</th><th style="width:10%">유형</th><th style="width:24%">유해·위험요인</th><th style="width:8%">위험도</th><th style="width:25%">개선대책</th><th style="width:20%">현장 관리방법</th><th style="width:8%">보고서</th></tr></thead><tbody>${pins.map(pin=>`<tr><td>${pin.id}</td><td>${esc(pin.type)}</td><td>${esc(pin.hazard||'-')}</td><td>${riskScore(pin)} · ${riskInfo(riskScore(pin)).label}</td><td>${esc(pin.measure||'-')}</td><td>${esc(pin.management||'-')}</td><td>${esc(pin.report)}</td></tr>`).join('')||'<tr><td colspan="7">표시한 위험이 없습니다.</td></tr>'}</tbody></table><div class="print-foot">※ 사진 분석 결과는 현장 확인 자료입니다. 최종 판단과 결재는 사람이 합니다.</div>`;
+    }
+
+    $('#changePhotoBtn').addEventListener('click',()=>$('#photoInput').click());
+    $('#photoInput').addEventListener('change',event=>{
+      const file=event.target.files[0]; if(!file) return;
+      if(!file.type.startsWith('image/')) { alert('사진 파일을 선택하세요.'); return; }
+      const url=URL.createObjectURL(file), probe=new Image();
+      probe.onload=()=>{
+        if(state.photoObjectUrl) URL.revokeObjectURL(state.photoObjectUrl);
+        state.photoObjectUrl=url; state.photoSrc=url; state.photoName=file.name; state.imageAspect=probe.naturalWidth/probe.naturalHeight;
+        $$('.pano-img').forEach(img=>img.src=url); $('#miniImage').src=url; state.centerX=.5;state.centerY=.5;state.zoom=1; renderAll(); toast('사진을 바꿨습니다. 원본 파일은 수정되지 않습니다.');
+      };
+      probe.onerror=()=>{URL.revokeObjectURL(url);alert('사진을 읽을 수 없습니다.');}; probe.src=url; event.target.value='';
+    });
+    $$('.pano-img')[1].addEventListener('load',event=>{ if(event.target.naturalWidth){state.imageAspect=event.target.naturalWidth/event.target.naturalHeight;measureLayout();} });
+    $('#wrapBtn').addEventListener('click',()=>{state.wrap=!state.wrap;state.centerX=clamp(state.centerX,0,1);syncControls();renderPins();measureLayout();queueSave();toast(state.wrap?'사진을 이어서 봅니다.':'사진 끝에서 멈춥니다.');});
+    $('#addPinBtn').addEventListener('click',()=>{state.addMode=!state.addMode;state.repickMode=false;updateModeUI();markInteraction();});
+    $('#jsonBtn').addEventListener('click',openJsonModal); $('#jsonCloseBtn').addEventListener('click',closeJsonModal); $('#jsonCloseX').addEventListener('click',closeJsonModal);
+    $('#jsonModal').addEventListener('click',event=>{if(event.target===$('#jsonModal'))closeJsonModal();});
+    $('#jsonAddBtn').addEventListener('click',()=>importAI(false)); $('#jsonReplaceBtn').addEventListener('click',()=>importAI(true));
+    $$('.remove-all').forEach(btn=>btn.addEventListener('click',removeAllPins));
+    $('#zoomOutBtn').addEventListener('click',()=>setZoom(state.zoom-.2)); $('#zoomInBtn').addEventListener('click',()=>setZoom(state.zoom+.2));
+    $('#resetViewBtn').addEventListener('click',()=>{state.centerX=.5;state.centerY=.5;state.zoom=1;measureLayout();queueSave();markInteraction();});
+    $('#fullscreenBtn').addEventListener('click',async()=>{try{if(!document.fullscreenElement)await viewer.requestFullscreen();else await document.exitFullscreen();}catch(_){alert('이 브라우저에서는 전체 화면을 열 수 없습니다.');}});
+    document.addEventListener('fullscreenchange',()=>setTimeout(measureLayout,50));
+    ['edge','auto','reduce','labels'].forEach(name=>{$(`#${name}Toggle`).addEventListener('change',event=>{const key={edge:'edgeMove',auto:'autoRotate',reduce:'reduceMotion',labels:'showLabels'}[name];state[key]=event.target.checked;syncControls();queueSave();markInteraction();});});
+    viewer.addEventListener('pointerenter',()=>{state.pointerInside=true;}); viewer.addEventListener('pointerleave',()=>{state.pointerInside=false;state.lastInteraction=performance.now();});
+    viewer.addEventListener('pointerdown',pointerDownViewer); viewer.addEventListener('pointermove',pointerMoveViewer); viewer.addEventListener('pointerup',pointerUpViewer); viewer.addEventListener('pointercancel',pointerUpViewer);
+    pinLayer.addEventListener('pointerdown',pinPointerDown); pinLayer.addEventListener('pointermove',pinPointerMove); pinLayer.addEventListener('pointerup',pinPointerUp); pinLayer.addEventListener('pointercancel',pinPointerUp);
+    minimap.addEventListener('pointerdown',miniPointerDown); minimap.addEventListener('pointermove',miniPointerMove); minimap.addEventListener('pointerup',miniPointerUp); minimap.addEventListener('pointercancel',miniPointerUp);
+    $('#pinEditor').addEventListener('input',event=>{
+      const field=event.target.dataset.field, pin=selectedPin(); if(!field||!pin)return;
+      if(field==='x'||field==='y') pin[field]=clamp(Number(event.target.value)||0,0,100);
+      else if(field==='frequency') pin[field]=clamp(Number(event.target.value)||1,1,5);
+      else if(field==='severity') pin[field]=clamp(Number(event.target.value)||1,1,4);
+      else pin[field]=event.target.value;
+      renderPins();renderMiniPins();renderCategories();renderStats();renderTable();updatePinPositions();queueSave();
+    });
+    $('#pinEditor').addEventListener('change',event=>{if(event.target.dataset.field)renderEditor();});
+    $('#pinEditor').addEventListener('click',event=>{
+      if(event.target.id==='repickBtn'){state.repickMode=!state.repickMode;state.addMode=false;updateModeUI();renderEditor();markInteraction();}
+      if(event.target.id==='goPinBtn'){const p=selectedPin();if(p)animatePanTo(p.x/100,p.y/100);}
+      if(event.target.id==='deletePinBtn')deleteSelected();
+    });
+    $('#riskTableBody').addEventListener('click',event=>{const row=event.target.closest('tr[data-id]');if(row){selectPin(Number(row.dataset.id));const p=selectedPin();if(p)animatePanTo(p.x/100,p.y/100);}});
+    $('#saveBtn').addEventListener('click',saveWork); $('#loadBtn').addEventListener('click',()=>$('#loadInput').click());
+    $('#loadInput').addEventListener('change',event=>{const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{applyWorkData(JSON.parse(reader.result));}catch(error){alert(`작업 파일을 읽지 못했습니다.\n${error.message}`);}};reader.readAsText(file,'utf-8');event.target.value='';});
+    $('#csvBtn').addEventListener('click',exportCsv); $('#printBtn').addEventListener('click',()=>{buildPrintReport();setTimeout(()=>window.print(),50);});
+    document.addEventListener('keydown',event=>{
+      if($('#jsonModal').classList.contains('open')){if(event.key==='Escape')closeJsonModal();return;}
+      const tag=document.activeElement?.tagName; if(['INPUT','TEXTAREA','SELECT'].includes(tag))return;
+      if(event.key==='Escape'){state.selectedId=null;state.addMode=false;state.repickMode=false;updateModeUI();renderAll();return;}
+      const pin=selectedPin(); const step=event.shiftKey?2:.2;
+      if(pin&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)){
+        event.preventDefault();if(event.key==='ArrowLeft')pin.x-=step;if(event.key==='ArrowRight')pin.x+=step;if(event.key==='ArrowUp')pin.y-=step;if(event.key==='ArrowDown')pin.y+=step;moveSelectedPin(pin.x,pin.y);return;
+      }
+      if(event.key==='ArrowLeft'){event.preventDefault();moveView(-.018,0);} if(event.key==='ArrowRight'){event.preventDefault();moveView(.018,0);}
+      if(event.key==='ArrowUp'){event.preventDefault();moveView(0,-.018);} if(event.key==='ArrowDown'){event.preventDefault();moveView(0,.018);}
+      if(event.key==='+'||event.key==='='){event.preventDefault();setZoom(state.zoom+.2);} if(event.key==='-'||event.key==='_'){event.preventDefault();setZoom(state.zoom-.2);}
+    });
+    window.addEventListener('resize',measureLayout);
+
+    $('#dateBadge').textContent=`점검일 · ${nowDate()}`;
+    loadAutoSave(); syncControls(); renderAll(); requestAnimationFrame(animationLoop);
+  })();
+  </script>
+</body>
+</html>
